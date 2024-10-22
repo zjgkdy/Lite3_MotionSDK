@@ -9,11 +9,11 @@
 #include "cmd_structure.h"
 
 #define BUFFER_SIZE 1024
-#define LOCAL_PORT 43897 // 本地端口
-
+#define LOCAL_PORT 43897  // 本地端口
 #define SERVER_PORT 43893 // 服务器端口
-#define IP "192.168.0.36" // 服务器地址
-// #define IP "192.168.1.120" // 服务器地址
+// #define IP "127.0.0.1"    // 本地回环地址
+// #define IP "192.168.0.36" // 测试服务器地址
+#define IP "192.168.1.120" // 运动主机服务器地址
 
 struct RobotStateUpload *RobotState; // 机器人状态信息
 struct RobotJointAngle *JointAngle;  // 关节角度
