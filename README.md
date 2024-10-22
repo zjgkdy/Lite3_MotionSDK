@@ -130,7 +130,7 @@ The developer can remotely connect to the motion host via ssh to configure the d
 	cd ~/jy_exe/scripts
 	./stop.sh
 	./run.sh
-	```	    
+	```
 	<img src="./img/imgCheckVersion.png"/>
 - The version information will then appear in the terminal (as shown above). If the username is `user` (see Section 4 for the username) and **Deeprcs Version** is earlier than **1.4.24(97)**, or if the username is `firefly` and **Deeprcs Version** is earlier than **1.4.21(94)**:
 
@@ -412,5 +412,4 @@ robot_set_up_demo.StandUp(robot_joint_cmd,now_time,*robot_data);
 1. Jueying Lite3 motion host is an ARM architecture and developers need to be careful if they want to run their programs on the motion host.
 
 2. WiFi communication latency fluctuation caused by interference in the network environment may have a certain impact on controllers with control frequencies above 500Hz.
-
 
