@@ -4,32 +4,25 @@
 #include <iostream>
 #include "cmd_code.h"
 
-// 简单指令结构体
+// 指令结构体
 struct CommandHead
 {
     uint32_t code;           // 指令码
     uint32_t paramters_size; // 指令值
-    uint32_t type;           // 指令类型：简单指令为0
+    uint32_t type;           // 指令类型：简单指令为0，复杂指令为1
 };
 
 // 复杂指令结构体
 const uint32_t kDataSize = 256;
-struct CommandHead
+struct ComplexCommand
 {
-    uint32_t code;           // 指令码
-    uint32_t paramters_size; // 数据长度
-    uint32_t type;           // 指令类型：复杂指令为1
-};
-struct Command
-{
-    CommandHead head;         // 复杂指令头
+    CommandHead head;         // 指令头
     uint32_t data[kDataSize]; // 数据内容
 };
 
 // 机器人状态信息结构体
 struct RobotStateUpload
 {
-
     int robot_basic_state;              // 基本运动状态：1-趴下，4-准备起立，5-正在起立，6-力控，7-正在趴下，8-失控保护，9-姿态调整，11-翻身，17-回零，18-后空翻，20-打招呼
     int robot_gait_state;               // 当前步态：0-平地低速，2-通用越障，4-平地中速，5-平地高速，6-抓地越障，12-太空步，13-高踏步越障
     double rpy[3];                      // IMU角度：{roll, pitch, yaw}

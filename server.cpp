@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#include "robot_cmd.h"
+#include "cmd_structure.h"
 
 #define PORT 43893
 #define BUFFER_SIZE 1024
