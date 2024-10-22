@@ -2,6 +2,8 @@
     "files.associations": {
         "chrono": "cpp",
         "cmath": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "system_error": "cpp",
+        "iostream": "cpp"
     }
 }

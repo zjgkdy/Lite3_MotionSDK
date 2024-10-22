@@ -1,55 +1,100 @@
+/// @file main.cpp
+/// @author ShuyangYu
+/// @brief
+/// @version 1.0
+/// @date 2024-10-19
+/// @copyright Copyright (c) 2024
+
+#include "udpsocket.hpp"
+#include "udpserver.hpp"
+#include "sender.h"
+#include "dr_timer.h"
+#include "receiver.h"
+#include "motionexample.h"
 #include <iostream>
-#include <cstring>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
+#include <time.h>
+#include <string.h>
 
-#define PORT 43893
-#define BUFFER_SIZE 1024
+using namespace std;
 
-int main()
+bool is_message_updated_ = false; ///< Flag to check if message has been updated
+/**
+ * @brief Callback function to set message update flag
+ *
+ * @param code The code indicating the type of message received
+ */
+void OnMessageUpdate(uint32_t code)
 {
-  int sockfd;
-  char buffer[BUFFER_SIZE];
-  struct sockaddr_in server_addr, client_addr;
-  socklen_t addr_len = sizeof(client_addr);
-
-  // 创建UDP Socket
-  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sockfd < 0)
+  if (code == 0x0906)
   {
-    perror("Socket creation failed");
-    exit(EXIT_FAILURE);
+    is_message_updated_ = true;
+  }
+}
+
+int main(int argc, char *argv[])
+{
+  /* 定时器初始化 */
+  double now_time, start_time;
+  DRTimer set_timer;
+  set_timer.TimeInit(1); // 定时器周期：ms
+
+  /* 网络通讯初始化 */
+  Sender *send_cmd = new Sender("192.168.0.36", 43893); // 创建Sender：绑定机器人的IP和端口号
+  Receiver *robot_data_recv = new Receiver();           // 创建Receiver
+  robot_data_recv->RegisterCallBack(OnMessageUpdate);
+  robot_data_recv->StartWork();
+
+  /* 机器人初始化 */
+  send_cmd->RobotStateInit(); // 机器人关节状态归零位，获取机器人控制权
+
+  /* Motion初始化 */
+  MotionExample robot_set_up_demo;
+  start_time = set_timer.GetCurrentTime(); // 获取当前时间
+  RobotData *robot_data = &robot_data_recv->GetState();
+  robot_set_up_demo.GetInitData(robot_data->joint_data, 0.000); // 获取所有的关节数据
+
+  RobotCmd robot_joint_cmd; // 机器人控制命令
+  memset(&robot_joint_cmd, 0, sizeof(robot_joint_cmd));
+
+  /* 主循环 */
+  int time_tick = 0;
+  while (1)
+  {
+    if (set_timer.TimerInterrupt() == true) // 等待定时器触发
+    {
+      continue;
+    }
+
+    now_time = set_timer.GetIntervalTime(start_time); // 计算相对时间
+    time_tick++;
+
+    if (time_tick < 1000)
+    {
+      robot_set_up_demo.PreStandUp(robot_joint_cmd, now_time, *robot_data); ///< Stand up and prepare for action
+    }
+    if (time_tick == 1000)
+    {
+      robot_set_up_demo.GetInitData(robot_data->joint_data, now_time); ///< Obtain all joint states once before each stage (action)
+    }
+
+    if (time_tick >= 1000)
+    {
+      robot_set_up_demo.StandUp(robot_joint_cmd, now_time, *robot_data); ///< Full stand up
+    }
+
+    if (time_tick >= 10000)
+    {
+      send_cmd->ControlGet(ROBOT); // 将控制权归还ROBOT(机器人的原始控制算法)
+      break;
+    }
+
+    if (is_message_updated_)
+    {
+      // send_cmd->SendCmd(robot_joint_cmd);
+    }
+
+    cout << robot_data->imu.acc_x << endl;
   }
 
-  // 配置服务器地址
-  memset(&server_addr, 0, sizeof(server_addr));
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_addr.s_addr = INADDR_ANY; // 绑定到所有本地接口
-  server_addr.sin_port = htons(PORT);
-
-  // 绑定Socket到地址
-  if (bind(sockfd, (const struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
-  {
-    perror("Bind failed");
-    close(sockfd);
-    exit(EXIT_FAILURE);
-  }
-
-  std::cout << "UDP Server is listening on port " << PORT << std::endl;
-
-  while (true)
-  {
-    // 接受消息
-    int n = recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, &addr_len);
-    std::cout << client_addr.sin_port << std::endl;
-    // std::cout << "Client: " << buffer << std::endl;
-
-    // 响应消息
-    uint32_t response = 0x0909;
-    sendto(sockfd, &response, 4, 0, (const struct sockaddr *)&client_addr, addr_len);
-  }
-
-  close(sockfd);
   return 0;
 }
