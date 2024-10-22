@@ -47,7 +47,7 @@ int main()
     int recv_size = recvfrom(sockfd, &cmd, sizeof(cmd), 0, (struct sockaddr *)&client_addr, &addr_len);
     if (cmd.type == 0)
     {
-      std::cout << "cmd.code = " << cmd.code << "\tcmd.size = " << cmd.paramters_size << std::endl;
+      std::cout << "PORT" << client_addr.sin_port << ":\tcmd.code = " << cmd.code << "\tcmd.size = " << cmd.paramters_size << std::endl;
     }
 
     // 响应消息
