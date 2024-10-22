@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include "dr_timer.h"
-#include "robot_cmd.h"
+#include "cmd_structure.h"
 
 #define PORT 43893
 #define BUFFER_SIZE 1024
@@ -54,15 +54,10 @@ int main()
       continue;
     }
 
-    // std::string message = "Hello World!";
-    // std::cout << "Enter message: ";
-    // std::getline(std::cin, message);
-
     // 发送消息
     struct CommandHead command_head = {0};
-    command_head.code = 1;
-    command_head.paramters_size = 0; // 指令值
-    command_head.type = 0;
+    command_head.code = INIT_CODE;
+    command_head.type = INIT_TYPE;
     int send_result = sendto(sockfd, &command_head, sizeof(command_head), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (send_result < 0)
     {
