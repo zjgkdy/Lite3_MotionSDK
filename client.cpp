@@ -10,7 +10,7 @@
 
 #define PORT 43893
 #define BUFFER_SIZE 1024
-#define IP "192.168.0.36" // 服务器地址
+#define IP "192.168.1.120" // 服务器地址
 
 struct RobotStateUpload *RobotState; // 机器人状态信息
 struct RobotJointAngle *JointAngle;  // 关节角度
@@ -49,6 +49,16 @@ int main()
     exit(EXIT_FAILURE);
   }
 
+  // 发送指令测试
+  struct CommandHead command_head = {0};
+  command_head.code = INIT_CODE;
+  command_head.type = INIT_TYPE;
+  int send_result = sendto(sockfd, &command_head, sizeof(command_head), 0, (struct sockaddr *)&server_addr, addr_len);
+  if (send_result < 0)
+  {
+    std::cerr << "Sento failed: " << strerror(errno) << std::endl;
+  }
+
   start_time = set_timer.GetCurrentTime(); // 获取当前时间
   while (true)
   {
@@ -59,34 +69,34 @@ int main()
     }
 
     // 接受数据测试
+    std::cout << "Wait message comes!" << std::endl;
     int recv_size = recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&server_addr, &addr_len);
-    CommandHead *head = (CommandHead *)buffer; // 解析指令头
-    if (head->code == ROBOT_STATE_CODE)
-    {
-      RobotState = (struct RobotStateUpload *)(buffer + sizeof(CommandHead));
-      std::cout << RobotState->battery_level << std::endl;
-    }
-    else if (head->code == JOINT_ANGLE_CODE)
-    {
-      JointAngle = (struct RobotJointAngle *)(buffer + sizeof(CommandHead));
-      std::cout << JointAngle->joint_angle[0] << std::endl;
-    }
-    else if (head->code == JOINT_VELOCITY_CODE)
-    {
-      JointVel = (struct RobotJointVel *)(buffer + sizeof(CommandHead));
-      std::cout << JointVel->joint_vel[0] << std::endl;
-    }
+    std::cout << "Receive message!" << std::endl;
+    // CommandHead *head = (CommandHead *)buffer; // 解析指令头
+    // if (head->code == ROBOT_STATE_CODE)
+    // {
+    //   RobotState = (struct RobotStateUpload *)(buffer + sizeof(CommandHead));
+    //   std::cout << RobotState->battery_level << std::endl;
+    // }
+    // else if (head->code == JOINT_ANGLE_CODE)
+    // {
+    //   JointAngle = (struct RobotJointAngle *)(buffer + sizeof(CommandHead));
+    //   std::cout << JointAngle->joint_angle[0] << std::endl;
+    // }
+    // else if (head->code == JOINT_VELOCITY_CODE)
+    // {
+    //   JointVel = (struct RobotJointVel *)(buffer + sizeof(CommandHead));
+    //   std::cout << JointVel->joint_vel[0] << std::endl;
+    // }
 
-    // 发送指令测试
-    struct CommandHead command_head = {0};
-    command_head.code = INIT_CODE;
-    command_head.type = INIT_TYPE;
-    int send_result = sendto(sockfd, &command_head, sizeof(command_head), 0, (struct sockaddr *)&server_addr, addr_len);
-    if (send_result < 0)
-    {
-      std::cerr << "Sento failed: " << strerror(errno) << std::endl;
-      break;
-    }
+    // command_head.code = STAND_SIT_CODE;
+    // command_head.type = STAND_SIT_TYPE;
+    // send_result = sendto(sockfd, &command_head, sizeof(command_head), 0, (struct sockaddr *)&server_addr, addr_len);
+    // if (send_result < 0)
+    // {
+    //   std::cerr << "Sento failed: " << strerror(errno) << std::endl;
+    //   break;
+    // }
   }
 
   close(sockfd);

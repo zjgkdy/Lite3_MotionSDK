@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
   set_timer.TimeInit(1); // 定时器周期：ms
 
   /* 网络通讯初始化 */
-  Sender *send_cmd = new Sender("192.168.0.36", 43893); // 创建Sender：绑定机器人的IP和端口号
-  Receiver *robot_data_recv = new Receiver();           // 创建Receiver
+  Sender *send_cmd = new Sender("192.168.1.120", 43893); // 创建Sender：绑定机器人的IP和端口号
+  Receiver *robot_data_recv = new Receiver();            // 创建Receiver
   robot_data_recv->RegisterCallBack(OnMessageUpdate);
   robot_data_recv->StartWork();
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
       // send_cmd->SendCmd(robot_joint_cmd);
     }
 
-    cout << robot_data->imu.acc_x << endl;
+    cout << robot_data->joint_data.hl_leg->torque << endl;
   }
 
   return 0;
