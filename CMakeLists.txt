@@ -31,7 +31,7 @@ link_directories(
   ./lib/
 )
 
-add_executable(${PROJECT_NAME} "server.cpp"${SRC_LIST})
+add_executable(${PROJECT_NAME} "client.cpp"${SRC_LIST})
 # 链接动态库target_link_libraries(myprogram /path/to/lib/libfoo.so)
 
 

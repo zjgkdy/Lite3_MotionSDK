@@ -82,26 +82,25 @@ int main()
     }
 
     // 接受数据测试
-    std::cout << "Wait message comes!" << std::endl;
+    std::cout << "Wait receive message!" << std::endl;
     int recv_size = recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&server_addr, &addr_len);
     std::cout << "Receive message!" << std::endl;
-
-    // CommandHead *head = (CommandHead *)buffer; // 解析指令头
-    // if (head->code == ROBOT_STATE_CODE)
-    // {
-    //   RobotState = (struct RobotStateUpload *)(buffer + sizeof(CommandHead));
-    //   std::cout << RobotState->battery_level << std::endl;
-    // }
-    // else if (head->code == JOINT_ANGLE_CODE)
-    // {
-    //   JointAngle = (struct RobotJointAngle *)(buffer + sizeof(CommandHead));
-    //   std::cout << JointAngle->joint_angle[0] << std::endl;
-    // }
-    // else if (head->code == JOINT_VELOCITY_CODE)
-    // {
-    //   JointVel = (struct RobotJointVel *)(buffer + sizeof(CommandHead));
-    //   std::cout << JointVel->joint_vel[0] << std::endl;
-    // }
+    CommandHead *head = (CommandHead *)buffer; // 解析指令头
+    if (head->code == ROBOT_STATE_CODE)
+    {
+      RobotState = (struct RobotStateUpload *)(buffer + sizeof(CommandHead));
+      std::cout << "battery_level = " << RobotState->battery_level << std::endl;
+    }
+    else if (head->code == JOINT_ANGLE_CODE)
+    {
+      JointAngle = (struct RobotJointAngle *)(buffer + sizeof(CommandHead));
+      std::cout << "joint_angle = " << JointAngle->joint_angle[0] << std::endl;
+    }
+    else if (head->code == JOINT_VELOCITY_CODE)
+    {
+      JointVel = (struct RobotJointVel *)(buffer + sizeof(CommandHead));
+      std::cout << "joint_vel = " << JointVel->joint_vel[0] << std::endl;
+    }
   }
 
   close(sockfd);
