@@ -20,6 +20,22 @@ struct RobotJointAngle *JointAngle;  // 关节角度
 struct RobotJointVel *JointVel;      // 关节角速度
 char buffer[BUFFER_SIZE];
 
+template <typename T, std::size_t N>
+std::string array_to_string(T (&arr)[N])
+{
+  std::string s = "(";
+  for (std::size_t i = 0; i < N; ++i)
+  {
+    s += std::to_string(arr[i]);
+    if (i < N - 1)
+    {
+      s += " ";
+    }
+  }
+  s += ")";
+  return s;
+}
+
 int main()
 {
   /* 定时器初始化 */
@@ -89,17 +105,29 @@ int main()
     if (head->code == ROBOT_STATE_CODE)
     {
       RobotState = (struct RobotStateUpload *)(buffer + sizeof(CommandHead));
-      std::cout << "battery_level = " << RobotState->battery_level << std::endl;
+      std::cout << "robot_basic_state: " << RobotState->robot_basic_state << std::endl;
+      std::cout << "robot_gait_state: " << RobotState->robot_gait_state << std::endl;
+      std::cout << "(roll, pitch, yaw): " << array_to_string(RobotState->rpy) << std::endl;
+      std::cout << "(roll_vel, pitch_vel, yaw_vel): " << array_to_string(RobotState->rpy_vel) << std::endl;
+      std::cout << "(x_acc, y_acc, z_acc): " << array_to_string(RobotState->xyz_acc) << std::endl;
+      std::cout << "pos_world: " << array_to_string(RobotState->pos_world) << std::endl;
+      std::cout << "vel_world: " << array_to_string(RobotState->vel_world) << std::endl;
+      std::cout << "vel_body: " << array_to_string(RobotState->vel_body) << std::endl;
+      std::cout << "robot_motion_state: " << RobotState->robot_motion_state << std::endl;
+      std::cout << "battery_level: " << RobotState->battery_level << std::endl;
+      std::cout << "is_robot_need_move: " << RobotState->is_robot_need_move << std::endl;
+      std::cout << "zero_position_flag: " << RobotState->zero_position_flag << std::endl;
+      std::cout << "(forward_distance, backward_distance): " << array_to_string(RobotState->ultrasound) << std::endl;
     }
     else if (head->code == JOINT_ANGLE_CODE)
     {
       JointAngle = (struct RobotJointAngle *)(buffer + sizeof(CommandHead));
-      std::cout << "joint_angle = " << JointAngle->joint_angle[0] << std::endl;
+      std::cout << "joint_angle = " << array_to_string(JointAngle->joint_angle) << std::endl;
     }
     else if (head->code == JOINT_VELOCITY_CODE)
     {
       JointVel = (struct RobotJointVel *)(buffer + sizeof(CommandHead));
-      std::cout << "joint_vel = " << JointVel->joint_vel[0] << std::endl;
+      std::cout << "joint_vel = " << array_to_string(JointVel->joint_vel) << std::endl;
     }
   }
 
